@@ -13,6 +13,18 @@ The baseline was recorded on 2026-08-27. Updating either pin requires a review
 of changed tests, golden outputs, dependencies, and runtime before the workflow
 is updated.
 
+## Upstream ancestry reconciliation
+
+On 2026-09-01, upstream PR #2 unintentionally merged this fork's CI branch as
+`e532982`, then restored `main` with additive revert `64444b0`. The revert's
+tree is exactly identical to the pinned `77ca953` baseline, so the scientific
+baseline and validation pins remain unchanged.
+
+This fork records `64444b0` as an ancestor with a history-only merge. A normal
+content merge would reapply the upstream revert and remove the intentional CI
+changes. The history-only merge instead preserves the validated fork tree from
+`cd16853` / `dbd0a1b`; this paragraph is its only file-level change.
+
 ## Bundled MDE tests
 
 The five pre-existing tests remain in their original files and all run in the
