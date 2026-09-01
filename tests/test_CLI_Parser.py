@@ -10,6 +10,10 @@ def test_mde_parser_maps_common_flags():
                           '--D', '5',
                           '--lib', '1', '20',
                           '--pred', '21', '40',
+                          '--crossMapBackend', 'torch',
+                          '--torchDevice', 'cpu',
+                          '--torchBatchCandidates', '8',
+                          '--torchPredChunk', '32',
                           '--noCCM',
                           '--noConsoleOut'] )
 
@@ -18,6 +22,10 @@ def test_mde_parser_maps_common_flags():
     assert args.D == 5
     assert args.lib == [1, 20]
     assert args.pred == [21, 40]
+    assert args.crossMapBackend == 'torch'
+    assert args.torchDevice == 'cpu'
+    assert args.torchBatchCandidates == 8
+    assert args.torchPredChunk == 32
     assert args.noCCM is True
     assert args.consoleOut is False
 
@@ -40,6 +48,8 @@ def test_reverse_parser_merges_reverse_and_mde_flags():
                                  '--logEveryPct', '25',
                                  '--reverseVariables', 'a', 'b',
                                  '--target', 'root',
+                                 '--crossMapBackend', 'auto',
+                                 '--torchDevice', 'cpu',
                                  '--D', '4'] )
 
     assert args.maxDepth == 2
@@ -47,3 +57,5 @@ def test_reverse_parser_merges_reverse_and_mde_flags():
     assert args.reverseVariables == ['a', 'b']
     assert args.target == 'root'
     assert args.D == 4
+    assert args.crossMapBackend == 'auto'
+    assert args.torchDevice == 'cpu'

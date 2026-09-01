@@ -49,8 +49,11 @@ jobs:
         run: |
           mkdir -p "$MPLCONFIGDIR"
           python -I -c "from importlib import resources; import dimx; \
+            import dimx.TorchBackend as torch_backend; \
             data = resources.files('dimx').joinpath('data'); \
             assert dimx.__version__; \
+            assert torch_backend.__driving_backend_contract__ == 1; \
+            assert callable(torch_backend.candidate_sweep_torch); \
             assert data.joinpath('Fly20_norm_1061.csv').is_file(); \
             assert data.joinpath('Fly80XY_norm_1061.csv').is_file()"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -89,6 +92,8 @@ jobs:
             tests/test_CLI_Parser.py \
             tests/test_pyEDM_Compatibility.py \
             tests/test_ExternalValidationAdapter.py \
+            tests/test_TorchBackend.py \
+            tests/test_TorchCrossMap.py \
             --timeout=120 \
             --durations=20 \
             --junitxml="test-results/standard-${{ matrix.python-version }}.xml"
@@ -97,6 +102,67 @@ jobs:
         with:
           name: standard-results-${{ matrix.python-version }}
           path: test-results/*.xml
+          if-no-files-found: error
+
+  torch-backend:
+    name: Optional Torch backend (CPU parity and timing)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install CPU Torch, package, and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "torch==2.13.0" \
+            --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "pyEDM==2.5.6"
+          python -m pip install --editable ".[test]"
+      - name: Record the hosted backend environment
+        run: |
+          python -c "from importlib.metadata import version; import torch; \
+            print('torch', torch.__version__); print('pyEDM', version('pyEDM')); \
+            print('cuda_available', torch.cuda.is_available()); \
+            assert torch.__version__.split('+')[0] == '2.13.0'; \
+            assert version('pyEDM') == '2.5.6'; \
+            assert not torch.cuda.is_available()"
+      - name: Run Torch contract and MDE parity tests on CPU
+        run: |
+          mkdir -p "$MPLCONFIGDIR" test-results
+          python -m pytest -q \
+            tests/test_TorchBackend.py \
+            tests/test_TorchCrossMap.py \
+            --timeout=180 \
+            --durations=20 \
+            --junitxml=test-results/torch-backend.xml
+      - name: Record non-gating Torch CPU benchmark
+        run: |
+          for selected in 0 1 24; do
+            python ci/benchmark_torch_backend.py \
+              --device cpu \
+              --lib-rows 240 \
+              --pred-rows 120 \
+              --selected "$selected" \
+              --candidates 64 \
+              --batch-candidates 16 \
+              --pred-chunk 64 \
+              --warmups 2 \
+              --repeats 3 \
+              --torch-threads 1 \
+              --output "test-results/torch-performance-selected-${selected}.json"
+          done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: torch-backend-results
+          path: test-results/*
           if-no-files-found: error
 
   minimum-pyedm:

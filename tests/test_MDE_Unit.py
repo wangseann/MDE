@@ -77,6 +77,29 @@ def test_validate_requires_list_parameters( name, value ):
 
 
 #------------------------------------------------------------
+@pytest.mark.parametrize( 'kwargs, message', [
+    ( { 'crossMapBackend'      : 'unknown' },
+      'crossMapBackend must be one of' ),
+    ( { 'crossMapBackend'      : 'torch',
+        'torchBatchCandidates' : 0 },
+      'torchBatchCandidates must be at least 1' ),
+    ( { 'crossMapBackend'      : 'torch',
+        'torchPredChunk'       : 0 },
+      'torchPredChunk must be at least 1' ),
+] )
+def test_validate_rejects_invalid_torch_controls( kwargs, message ):
+    mde = MDE( _Data(), target = 'target', consoleOut = False, **kwargs )
+
+    with pytest.raises( RuntimeError, match = message ) :
+        mde.Validate()
+
+    if kwargs.get( 'crossMapBackend' ) == 'torch' :
+        cpuKwargs = dict( kwargs, crossMapBackend = 'cpu' )
+        MDE( _Data(), target = 'target', consoleOut = False,
+             **cpuKwargs ).Validate()
+
+
+#------------------------------------------------------------
 def test_validate_requires_slope_matrix_dataframe():
     mde = MDE( _Data(), slopeMatrix = [[1.0]], target = 'target',
                consoleOut = False )

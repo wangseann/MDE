@@ -102,6 +102,10 @@ MDEArgs = dict( dataFile        = None,  # file name for DataFrame
                 sharedMem       = 0.1,   # shared-mem threshold (decimal MB)
                 logPct          = 0,     # cross-map progress band
                 kdWorkers       = 1,     # KDTree.query workers in Simplex
+                crossMapBackend = 'cpu', # cpu | auto | torch sweep backend
+                torchDevice     = 'cuda', # Torch device string
+                torchBatchCandidates = 16, # candidate columns per Torch batch
+                torchPredChunk  = 128,   # prediction rows per Torch chunk
                 outDir          = './',  # use pathlib for windog
                 outFile         = None,
                 outCSV          = None,
