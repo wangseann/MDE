@@ -16,6 +16,15 @@ Output is a DataFrame with a ranked list of observation vectors and predictive s
 
 `python -m pip install dimx`
 
+An experimental Torch candidate-sweep backend is available as an optional
+extra (`python -m pip install -e ".[torch]"` from a source checkout). The CPU
+pyEDM backend remains the default; enable the accelerator with
+`crossMapBackend = "torch"` (CUDA is the default Torch device). See the
+[Torch backend guide](docs/TORCH_BACKEND.md) for supported settings, fallback,
+consumer-file compatibility, numerical limits, and the CI benchmark artifact.
+The packaged kernel preserves the deployed driving/fMRI function bodies; this
+integration does not fold in unrelated numerical optimizations.
+
 ## Documentation
 
 Documentation is available at [MDE Docs](https://pao-unit.github.io/MDE_docs/)

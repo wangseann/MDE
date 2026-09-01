@@ -8,7 +8,8 @@ scientific validation.
 | Suite | Owner/source | Unique cases | Role |
 | --- | --- | ---: | --- |
 | Bundled scientific regressions | Pre-existing `pao-unit/MDE` tests | 5 | Authoritative MDE numerical behavior |
-| Fast project tests | Added with this CI foundation | 40 | Configuration, API, CLI, orchestration, dependency, and adapter behavior |
+| Fast CI-foundation tests | Added before acceleration work | 40 | Configuration, API, CLI, orchestration, dependency, and external adapter behavior |
+| Torch acceleration tests | Added with the opt-in backend | 22 | Configuration, deployed consumer contract, fallback/error handling, numerical parity, and MDE integration |
 | Independent validation | Pinned `pao-unit/EDM_MDE_validation` | 33 | External pyEDM and MDE conformance |
 
 The five bundled tests retain upstream ownership. Three MDE golden tests were
@@ -51,11 +52,64 @@ python -m pytest -q \
   tests/test_CLI_Parser.py \
   tests/test_pyEDM_Compatibility.py \
   tests/test_ExternalValidationAdapter.py \
+  tests/test_TorchBackend.py \
+  tests/test_TorchCrossMap.py \
   --timeout=120 --durations=20
 ```
 
 These tests should finish in seconds to roughly one minute and are run on the
 minimum supported Python and the newest supported Python.
+
+## Optional Torch parity
+
+Install a CPU Torch build and run the focused backend files on Python 3.11:
+
+```bash
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install --editable ".[test]"
+CUDA_VISIBLE_DEVICES="" python -m pytest -q \
+  tests/test_TorchBackend.py tests/test_TorchCrossMap.py \
+  --timeout=180 --durations=20
+```
+
+These 19 cases exercise the standalone driving/fMRI function contract, lazy
+imports, deployed edge behavior, batch/chunk invariance, `Tp = -1, 0, 1`, finite-data and
+split fallback, rho parity with pyEDM, and a complete D=2 MDE selection. The
+remaining three acceleration cases validate configuration and CLI controls in
+the standard suite. Passing here proves the Torch algorithm on a CPU device;
+it does not prove CUDA execution or speed.
+
+## Diagnostic performance report
+
+Run the same non-gating benchmark used by the Torch CI job:
+
+```bash
+for selected in 0 1 24; do
+  python ci/benchmark_torch_backend.py \
+    --device cpu \
+    --selected "$selected" \
+    --warmups 2 \
+    --repeats 3 \
+    --torch-threads 1 \
+    --output "torch-performance-selected-${selected}.json"
+done
+```
+
+The JSON records the extracted and prototype hashes, Python/Torch/device and
+GitHub-run metadata, input shape, cold start, warm-up and memory controls,
+CPU/Torch correctness for every repeat, individual internal and wall durations,
+median/IQR, and median ratio. The harness fails for a candidate or rho mismatch,
+but never for being slower than a threshold. CI pins Torch 2.13.0; use the same
+version when comparing reports longitudinally.
+
+The ratio is a candidate-sweep diagnostic against the deployed scalar SciPy
+reference. It is not a full `MDE.Run()` speedup claim; end-to-end timing must be
+measured separately on the same data, split, process settings, and hardware.
+
+Use `--device cuda` only on a machine where the selected Python environment can
+see CUDA. Retain the resulting JSON with any speed claim. A standard GitHub
+hosted runner has no CUDA device, and its variable CPU load makes its timing
+artifact diagnostic rather than a stable regression baseline.
 
 ## Bundled scientific regressions
 
@@ -106,4 +160,5 @@ python -m twine check dist/*
 ```
 
 CI additionally installs the built wheel outside the source checkout and
-checks `dimx.__version__` plus both packaged example data files.
+checks `dimx.__version__`, both packaged example data files, and that the
+direct-loadable `dimx.TorchBackend` module is present without requiring Torch.
