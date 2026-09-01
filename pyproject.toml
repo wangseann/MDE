@@ -7,7 +7,7 @@ license         = "LicenseRef-OIST-License"
 license-files   = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = [
-    "pyEDM>=2.5.6",
+    "pyEDM>=2.2.3",
     "matplotlib",
     "numpy",
     "pandas>=2.0",
@@ -28,17 +28,11 @@ classifiers = [
 Homepage      = "https://github.com/pao-unit/MDE"
 Documentation = "https://pao-unit.github.io/MDE_docs/"
 Issues        = "https://github.com/pao-unit/MDE/issues"
-[project.optional-dependencies]
-test = [
-    "pyarrow",
-    "pytest>=8",
-    "pytest-timeout>=2.3",
-]
 [tool.pdm.version]
 source = "file"
 path   = "dimx/__init__.py"
-[tool.pdm.build]
-source-includes = ["ci/", "tests/"]
+#[tool.pdm.build]
+#includes = ["dimx/"]
 [build-system]
 requires      = ["pdm-backend"]
 build-backend = "pdm.backend"

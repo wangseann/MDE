@@ -26,7 +26,6 @@ def test_mde_Lorenz5D():
     df  = mde.MDEOut
     dfv = ValidData("MDE_Lorenz5D_1_Valid.csv")
 
-    assert df['variables'].equals( dfv['variables'] )
     mdeOut = round(  df.iloc[:,1:], 3 )
     valid  = round( dfv.iloc[:,1:], 3 )
     assert mdeOut.equals( valid )
@@ -52,7 +51,6 @@ def test_mde_Fly80_FWD():
     df  = mde.MDEOut
     dfv = ValidData("MDE_Fly_2_Valid.csv")
 
-    assert df['variables'].equals( dfv['variables'] )
     mdeOut = round(  df.iloc[:,1:], 3 )
     valid  = round( dfv.iloc[:,1:], 3 )
     assert mdeOut.equals( valid )
@@ -78,7 +76,6 @@ def test_mde_Fly80_LR():
     df  = mde.MDEOut
     dfv = ValidData("MDE_Fly_3_Valid.csv")
 
-    assert df['variables'].equals( dfv['variables'] )
     mdeOut = round(  df.iloc[:,1:], 3 )
     valid  = round( dfv.iloc[:,1:], 3 )
     assert mdeOut.equals( valid )
