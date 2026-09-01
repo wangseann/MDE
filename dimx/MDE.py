@@ -365,6 +365,22 @@ class MDE:
             self.LogMsg( msg )
             raise RuntimeError( msg )
 
+        if args.crossMapBackend not in ('cpu', 'auto', 'torch') :
+            msg = ( 'Validate() crossMapBackend must be one of '
+                    'cpu, auto, torch.' )
+            self.LogMsg( msg )
+            raise RuntimeError( msg )
+
+        if args.crossMapBackend != 'cpu' and args.torchBatchCandidates < 1 :
+            msg = 'Validate() torchBatchCandidates must be at least 1.'
+            self.LogMsg( msg )
+            raise RuntimeError( msg )
+
+        if args.crossMapBackend != 'cpu' and args.torchPredChunk < 1 :
+            msg = 'Validate() torchPredChunk must be at least 1.'
+            self.LogMsg( msg )
+            raise RuntimeError( msg )
+
         if len( args.lib ) == 0 or len( args.pred ) == 0 :
             lib, pred = self.ResolveLibPred( self.dataFrame.shape[0] )
             if len( args.lib ) == 0 :

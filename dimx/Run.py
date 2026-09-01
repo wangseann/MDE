@@ -11,6 +11,7 @@ from sklearn.linear_model import LinearRegression
 
 # Local modules
 from .Parallel import CrossMapPool, PrepareNumericFrame, ResolveStartMethod
+from .TorchCrossMap import ResolveCrossMap
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -87,6 +88,7 @@ def Run( self ):
     # single threaded (CCM is always workers=1 in pyEDM 2.5.3).
     # Note embedded = True
     argsD = { 'target'          : a.target,
+              'candidateColumns': dataColumns,
               'lib'             : a.lib,
               'pred'            : a.pred,
               'E'               : 0,
@@ -100,12 +102,18 @@ def Run( self ):
     maxTasks = len( dataColumns )
 
     # One persistent pool for the whole run; teardown guaranteed in finally.
-    pool = CrossMapPool( numericDF, argsD,
-                         crossMapCores = a.crossMapCores,
-                         mpMethod  = a.mpMethod,
-                         sharedMem = getattr( a, 'sharedMem', 0.1 ),
-                         maxTasks  = maxTasks,
-                         logMsg    = LogMsg if a.verbose else None )
+    pool = ResolveCrossMap(
+               numericDF, argsD,
+               backend        = getattr( a, 'crossMapBackend', 'cpu' ),
+               torchDevice     = getattr( a, 'torchDevice', 'cuda' ),
+               batchCandidates = getattr( a, 'torchBatchCandidates', 16 ),
+               predChunk       = getattr( a, 'torchPredChunk', 128 ),
+               crossMapCores   = a.crossMapCores,
+               mpMethod        = a.mpMethod,
+               sharedMem       = getattr( a, 'sharedMem', 0.1 ),
+               maxTasks        = maxTasks,
+               logMsg          = LogMsg if a.verbose else None,
+               cpuFactory      = CrossMapPool )
     try :
         logPct = getattr( a, 'logPct', 0 )
 

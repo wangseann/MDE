@@ -34,6 +34,9 @@ test = [
     "pytest>=8",
     "pytest-timeout>=2.3",
 ]
+torch = [
+    "torch>=2.1",
+]
 [tool.pdm.version]
 source = "file"
 path   = "dimx/__init__.py"

@@ -74,6 +74,14 @@ class MDEConfig:
     logPct:        float         = 0    # cross-map progress band
     kdWorkers:     int           = 1    # KDTree.query workers in Simplex
 
+    # The accelerator is deliberately opt-in while numerical parity is being
+    # established.  ``auto`` uses Torch only when the requested device and the
+    # current MDE arguments are supported; otherwise it retains the pyEDM pool.
+    crossMapBackend:      str = 'cpu'   # cpu | auto | torch
+    torchDevice:          str = 'cuda'  # torch device string (cuda, cuda:0, cpu)
+    torchBatchCandidates: int = 16      # candidates resident per Torch batch
+    torchPredChunk:       int = 128     # prediction rows resident per chunk
+
     # --- Output limits / destinations -----------------------------
     maxLenRhoD:     Optional[int] = None # Output() cap on rhoD per dim
     maxLenRhoD_CCM: Optional[int] = None # Output() cap on rhoD_CCM per dim

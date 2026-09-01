@@ -219,6 +219,30 @@ def ParseCmdLine( argv = None ):
                                '1 (default) since the pool parallelizes across '
                                'candidates; -1 uses all cores per query.')
 
+    parser.add_argument('--crossMapBackend',
+                        dest = 'crossMapBackend', type = str,
+                        choices = ('cpu', 'auto', 'torch'),
+                        action = 'store', default = _cfg.crossMapBackend,
+                        help = 'Cross-map sweep backend. cpu preserves pyEDM; '
+                               'auto uses Torch only when supported; torch '
+                               'requires the optional dependency and device.')
+
+    parser.add_argument('--torchDevice',
+                        dest = 'torchDevice', type = str,
+                        action = 'store', default = _cfg.torchDevice,
+                        help = 'Torch device for the cross-map sweep, for '
+                               'example cuda, cuda:0, or cpu.')
+
+    parser.add_argument('--torchBatchCandidates',
+                        dest = 'torchBatchCandidates', type = int,
+                        action = 'store', default = _cfg.torchBatchCandidates,
+                        help = 'Candidate columns per Torch batch.')
+
+    parser.add_argument('--torchPredChunk',
+                        dest = 'torchPredChunk', type = int,
+                        action = 'store', default = _cfg.torchPredChunk,
+                        help = 'Prediction rows per Torch distance chunk.')
+
     parser.add_argument('-mrd', '--maxLenRhoD',
                         dest = 'maxLenRhoD', type = int,
                         action = 'store', default = _cfg.maxLenRhoD,
