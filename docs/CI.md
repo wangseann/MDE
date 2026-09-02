@@ -12,8 +12,8 @@ commit hashes, and checkout credentials are not persisted after each step.
 | Job | Coverage | Python | Limit |
 | --- | --- | --- | --- |
 | `package` | sdist/wheel build, metadata check, clean wheel install, packaged data and lazy backend import | 3.11 | 20 min |
-| `standard-tests` | 62 fast configuration, API, CLI, reverse-MDE, compatibility, and fallback tests | 3.11, 3.14 | 20 min |
-| `torch-backend` | 19 deployed-contract/parity cases plus non-gating repeated timing artifacts using Torch on CPU | 3.11 | 30 min |
+| `standard-tests` | 64 collected configuration, API, CLI, reverse-MDE, compatibility, and fallback tests; optional Torch cases skip here | 3.11, 3.14 | 20 min |
+| `torch-backend` | 21 deployed-contract/parity cases plus non-gating repeated timing artifacts using Torch on CPU | 3.11 | 30 min |
 | `minimum-pyedm` | exact declared floor and required pyEDM call signatures | 3.11 / pyEDM 2.5.6 | 20 min |
 | `scientific-regression` | all five bundled numerical tests | 3.11 | 90 min |
 
@@ -22,11 +22,14 @@ minimum contract; Python 3.14 detects compatibility issues on the current
 stable interpreter. The scientific job runs once to avoid multiplying the
 longest computation across the version matrix.
 
-The Torch job pins the official CPU wheel to Torch 2.13.0 and hides CUDA
-deliberately. It
-proves optional-dependency packaging, deployed-behavior fixtures, numerical
-parity, chunk invariance, and MDE integration without pretending that a hosted
-runner exercised a GPU. It uploads three `torch-performance-selected-*.json`
+The Torch job pins the official CPU wheel to Torch 2.13.0 and deliberately
+hides CUDA. It proves optional-dependency packaging, deployed-behavior
+fixtures, numerical parity, chunk invariance, and MDE integration without
+pretending that a hosted runner exercised a GPU. The integration cases
+separately verify a directional precomputed CCM slope matrix and fixed-seed
+live pyEDM EmbedDimension/CCM. They establish unchanged downstream causality
+qualification; Torch still accelerates only the candidate Simplex sweep. The
+job uploads three `torch-performance-selected-*.json`
 reports for 1-D, 2-D, and 25-D sweep stages (`selected = 0, 1, 24`). Each
 contains cold and repeated warm CPU-reference/Torch wall durations, median/IQR,
 environment, source hashes, memory controls, and per-repeat correctness.

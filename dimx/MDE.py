@@ -227,8 +227,8 @@ class MDE:
 
         Convention: the matrix is square with identical labels on .index
         (source / embedded dimension) and .columns (predicted dimension);
-        the Run() lookup is slopeMatrix.loc[target, column]. CCM slope is
-        directional, so the matrix is not symmetric.
+        the Run() lookup is slopeMatrix.loc[source, predicted target]. CCM
+        slope is directional, so the matrix is not symmetric.
 
         .csv     : written without an index (pure float matrix). The first
                    column must be float - a written index column would parse

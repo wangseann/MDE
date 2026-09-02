@@ -55,9 +55,9 @@ def Run( self ):
     # a candidate).  Order doesn't matter; use set for efficiency.
     dataColumns = list( set( numericDF.columns ) - set( a.removeColumns ) )
 
-    # Slope-matrix coverage: every candidate column must be a predicted
-    # (column) label in the matrix, since lookups are slopeMatrix.loc[
-    # target, candidate ].  Fail fast on a matrix that does not match data.
+    # Slope-matrix coverage: every candidate must be a source-row label since
+    # lookups are slopeMatrix.loc[candidate, target]. Validate() requires
+    # identical row/column labels, so checking columns here is equivalent.
     if self.slopeMatrix is not None :
         missing = [ c for c in dataColumns if c not in self.slopeMatrix.columns ]
         if missing :

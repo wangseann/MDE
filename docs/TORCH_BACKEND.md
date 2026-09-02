@@ -98,6 +98,23 @@ The same controls are available on the MDE command line. The minimal opt-in is
 `--crossMapBackend torch`; optional tuning uses `--torchDevice`,
 `--torchBatchCandidates`, and `--torchPredChunk`.
 
+## CCM and precomputed slope matrices
+
+Torch changes only the candidate Simplex sweep that supplies cross-map rho
+values. With a precomputed slope matrix, MDE performs the same directional
+`slopeMatrix.loc[candidate, target]` lookups and runs neither `EmbedDimension`
+nor CCM. Without a matrix, and with `noCCM = False`, MDE runs pyEDM
+`EmbedDimension` when `E = 0`, then runs CCM for candidates that pass the
+embedding gate. `MDEOut.rho` remains cross-map rho; it is not a CCM slope.
+
+Focused parity tests run CPU and Torch MDE against the same asymmetric matrix,
+including a highest-rho candidate that fails the slope threshold, and against
+the same live pyEDM calculation with a fixed CCM seed. They require identical
+selected-variable order, embedding dimensions, and CCM slopes, with the
+documented tolerance applying only to cross-map rho. These synthetic tests
+verify execution-path parity; their small CCM sample is not a scientific
+estimate or a GPU performance measurement.
+
 ## Standalone consumer compatibility
 
 The installed backend's direct path is available without copying a private

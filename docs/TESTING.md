@@ -9,7 +9,7 @@ scientific validation.
 | --- | --- | ---: | --- |
 | Bundled scientific regressions | Pre-existing `pao-unit/MDE` tests | 5 | Authoritative MDE numerical behavior |
 | Fast CI-foundation tests | Added before acceleration work | 40 | Configuration, API, CLI, orchestration, dependency, and external adapter behavior |
-| Torch acceleration tests | Added with the opt-in backend | 22 | Configuration, deployed consumer contract, fallback/error handling, numerical parity, and MDE integration |
+| Torch acceleration tests | Added with the opt-in backend | 24 | Configuration, deployed consumer contract, fallback/error handling, numerical parity, CCM-path parity, and MDE integration |
 | Independent validation | Pinned `pao-unit/EDM_MDE_validation` | 33 | External pyEDM and MDE conformance |
 
 The five bundled tests retain upstream ownership. Three MDE golden tests were
@@ -72,12 +72,19 @@ CUDA_VISIBLE_DEVICES="" python -m pytest -q \
   --timeout=180 --durations=20
 ```
 
-These 19 cases exercise the standalone driving/fMRI function contract, lazy
-imports, deployed edge behavior, batch/chunk invariance, `Tp = -1, 0, 1`, finite-data and
-split fallback, rho parity with pyEDM, and a complete D=2 MDE selection. The
-remaining three acceleration cases validate configuration and CLI controls in
-the standard suite. Passing here proves the Torch algorithm on a CPU device;
-it does not prove CUDA execution or speed.
+These 21 cases exercise the deployed direct-file consumer contract, lazy
+imports, deployed edge behavior, batch/chunk invariance, `Tp = -1, 0, 1`,
+finite-data and split fallback, rho parity with pyEDM, and complete MDE
+selections with no CCM, a directional precomputed slope matrix, and fixed-seed
+live pyEDM CCM. The matrix case proves that live `EmbedDimension` and CCM are
+bypassed; the live case proves that both sweep backends reach identical
+embedding dimensions and rounded CCM slopes. It runs genuine pyEDM CCM
+serially to avoid testing process scheduling twice. The remaining three
+acceleration cases validate invalid backend controls in the standard suite.
+Torch does not compute CCM in either mode: it accelerates the candidate Simplex
+sweep and leaves causality qualification in existing MDE/pyEDM code. Passing
+here proves the Torch algorithm on a CPU device; it does not prove CUDA
+execution or speed.
 
 ## Diagnostic performance report
 
