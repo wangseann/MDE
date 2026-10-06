@@ -33,6 +33,12 @@ windows. Its bundled test starts prediction at row 302 rather than 301 for
 regenerated to fit the fork. Upstream's restored four-row Lorenz golden is
 already identical to the fork's corrected reference.
 
+Focused integration regressions also cover two upstream edge cases. GraphMDE
+rejects self-loops even when the node has not yet been added. Evaluate keeps
+PCA/DMap training targets inside the specified library, matching Simplex's
+`Tp` truncation; prediction targets retain upstream's alignment. GraphMDE's
+root-derived default row limit is preserved and stated explicitly in CLI help.
+
 The cproj accepted baseline, certified runtimes, and cluster releases are
 separate records and are not advanced by this GitHub integration.
 

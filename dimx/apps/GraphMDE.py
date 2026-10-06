@@ -162,6 +162,8 @@ class GraphMDE:
 
     @staticmethod
     def _WouldCycle(graph, sourceVar, targetKey):
+        if sourceVar == targetKey:
+            return True
         # Absent endpoint -> no path possible -> edge is safe
         if sourceVar not in graph or targetKey not in graph:
             return False
@@ -192,7 +194,7 @@ def ParseArguments(argv=None):
                         help='output path; .pkl or .json selects format')
     parser.add_argument('-N', '--max-nodes', dest='N',
                         type=int, default=None,
-                        help='rows per node to use (default: all)')
+                        help='rows per node to use (default: root row count)')
     parser.add_argument('-v', '--verbose', action='store_true',
                         default=False, help='print timestamped progress')
     # logPercent wins over logN when both are given (see GraphMDE)

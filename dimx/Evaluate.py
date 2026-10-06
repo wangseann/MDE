@@ -256,13 +256,13 @@ class Evaluate:
         # Subset data into training (library) and test (prediction) sets
         # Row indices are 0-offset states. With Tp > 0 the target of
         # state row i is row i + Tp, as in Simplex: state t predicts
-        # time t + Tp. As for Simplex, states are kept if the target
-        # exists in the data, even beyond the window, so that PCA, DMap
-        # & MDE are scored on the same rows.
+        # time t + Tp. Simplex keeps library targets inside the library
+        # window. Prediction targets may extend beyond the prediction
+        # window, provided they exist in the data.
         Tp     = args.Tp
         nRows  = df.shape[0]
         lib_i  = [ x-1 for x in range(args.library[0],    args.library[1] + 1)
-                   if x - 1 + Tp < nRows ]
+                   if x - 1 + Tp < min( args.library[1], nRows ) ]
         pred_i = [ x-1 for x in range(args.prediction[0],
                                       args.prediction[1] + 1)
                    if x - 1 + Tp < nRows ]

@@ -11,8 +11,8 @@ commit hashes, and checkout credentials are not persisted after each step.
 
 | Job | Coverage | Python | Limit |
 | --- | --- | --- | --- |
-| `package` | sdist/wheel build, metadata check, clean wheel install, packaged data and lazy backend import | 3.11 | 20 min |
-| `standard-tests` | 64 collected configuration, API, CLI, reverse-MDE, compatibility, and fallback tests; optional Torch cases skip here | 3.11, 3.14 | 20 min |
+| `package` | sdist/wheel build, metadata check, clean wheel install, packaged data, lazy backend import, and optional GraphMDE CLI | 3.11 | 20 min |
+| `standard-tests` | 69 collected configuration, API, CLI, reverse-MDE, graph, evaluation, compatibility, and fallback tests; optional Torch cases skip here | 3.11, 3.14 | 20 min |
 | `torch-backend` | 21 deployed-contract/parity cases plus non-gating repeated timing artifacts using Torch on CPU | 3.11 | 30 min |
 | `minimum-pyedm` | exact declared floor and required pyEDM call signatures | 3.11 / pyEDM 2.5.6 | 20 min |
 | `scientific-regression` | all five bundled numerical tests | 3.11 | 90 min |
@@ -48,7 +48,8 @@ silently raising that floor.
 
 `.github/workflows/validation.yml` runs each Monday at 03:17 UTC, on manual
 dispatch, and on pushes to `integration/upstream-*` branches so upstream
-merges exercise the independent reference suite before review. It pins `pao-unit/EDM_MDE_validation` by full commit:
+merges exercise the independent reference suite before review. It pins
+`pao-unit/EDM_MDE_validation` by full commit:
 
 - `external-pyedm`: all 31 independent pyEDM tests, with shared sample data
   restored between cases so an upstream state leak cannot alter later files;

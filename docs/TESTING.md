@@ -8,7 +8,7 @@ scientific validation.
 | Suite | Owner/source | Unique cases | Role |
 | --- | --- | ---: | --- |
 | Bundled scientific regressions | Pre-existing `pao-unit/MDE` tests | 5 | Authoritative MDE numerical behavior |
-| Fast CI-foundation tests | Added before acceleration work | 40 | Configuration, API, CLI, orchestration, dependency, and external adapter behavior |
+| Fast standard tests | CI foundation and upstream integration | 45 | Configuration, API, CLI, orchestration, graph, evaluation, dependency, and external adapter behavior |
 | Torch acceleration tests | Added with the opt-in backend | 24 | Configuration, deployed consumer contract, fallback/error handling, numerical parity, CCM-path parity, and MDE integration |
 | Independent validation | Pinned `pao-unit/EDM_MDE_validation` | 33 | External pyEDM and MDE conformance |
 
@@ -19,10 +19,10 @@ comment. The external test source and golden files are not modified.
 
 ## Reproducible environment
 
-Install the project and its test extra in an isolated Python 3.11+ environment:
+Install the project and its test and graph extras in an isolated Python 3.11+ environment:
 
 ```bash
-python -m pip install --editable ".[test]"
+python -m pip install --editable ".[test,graph]"
 ```
 
 For deterministic, headless execution use:
@@ -52,6 +52,8 @@ python -m pytest -q \
   tests/test_CLI_Parser.py \
   tests/test_pyEDM_Compatibility.py \
   tests/test_ExternalValidationAdapter.py \
+  tests/test_GraphMDE.py \
+  tests/test_Evaluate_Unit.py \
   tests/test_TorchBackend.py \
   tests/test_TorchCrossMap.py \
   --timeout=120 --durations=20
