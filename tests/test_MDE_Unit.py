@@ -133,22 +133,16 @@ def test_validate_requires_target_in_slope_matrix():
 
 
 #------------------------------------------------------------
-@pytest.mark.parametrize( 'removeTime, noTime, expectedCandidates', [
-    pytest.param( False, False,
+@pytest.mark.parametrize( 'noTime, expectedCandidates', [
+    pytest.param( False,
                   {'first_driver', 'second_driver'},
                   id = 'leading-column-is-time' ),
-    pytest.param( False, True,
+    pytest.param( True,
                   {'leading', 'first_driver', 'second_driver'},
                   id = 'leading-column-is-data' ),
-    pytest.param( True, False,
-                  {'first_driver', 'second_driver'},
-                  id = 'explicit-time-removal' ),
-    pytest.param( True, True,
-                  {'first_driver', 'second_driver'},
-                  id = 'explicit-removal-wins' ),
 ] )
 def test_run_time_flags_preserve_expected_candidates(
-        monkeypatch, removeTime, noTime, expectedCandidates ):
+        monkeypatch, noTime, expectedCandidates ):
     '''Prepare the leading column exactly once before candidate selection.'''
     values = [ float(i) for i in range( 100 ) ]
     data = DataFrame( {
@@ -175,14 +169,13 @@ def test_run_time_flags_preserve_expected_candidates(
     monkeypatch.setattr( runModule, 'CrossMapPool', CapturePool )
 
     mde = MDE( data, target = 'target', removeColumns = ['target'],
-               removeTime = removeTime, noTime = noTime,
+               noTime = noTime,
                noCCM = True, D = 1, consoleOut = False )
 
     mde.Run()
 
     assert observed == expectedCandidates
     assert mde.args.noTime is noTime
-    assert mde.args.removeTime is removeTime
     assert_frame_equal( mde.dataFrame, baseline )
     assert_frame_equal( data, baseline )
 
