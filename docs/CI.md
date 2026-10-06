@@ -47,8 +47,9 @@ silently raising that floor.
 ## Scheduled workflow: `Extended validation`
 
 `.github/workflows/validation.yml` runs each Monday at 03:17 UTC, on manual
-dispatch, and on pushes to `integration/upstream-*` branches so upstream
-merges exercise the independent reference suite before review. It pins
+dispatch, and on pushes to `main` and `integration/upstream-*` branches so
+upstream merges exercise the independent reference suite before review and
+again on the merged commit. It pins
 `pao-unit/EDM_MDE_validation` by full commit:
 
 - `external-pyedm`: all 31 independent pyEDM tests, with shared sample data
