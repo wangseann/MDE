@@ -11,6 +11,7 @@ from sklearn.linear_model import LinearRegression
 
 # Local modules
 from .Parallel import CrossMapPool, PrepareNumericFrame, ResolveStartMethod
+from .TorchCrossMap import ResolveCrossMap
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -36,12 +37,10 @@ def Run( self ):
 
     # Numeric-only frame used by both the worker sweep and the parent-side
     # EmbedDimension / CCM validation. This is the sole leading-column
-    # preprocessing seam: removeTime explicitly drops it, otherwise noTime
-    # decides whether it is time or data. pyEDM noTime is then forced True
-    # everywhere below.
+    # preprocessing seam: noTime decides whether it is time or data.
+    # pyEDM noTime is then forced True everywhere below.
     numericDF, _ = PrepareNumericFrame( self.dataFrame, a.noTime,
-                                        a.verbose, LogMsg,
-                                        removeTime = a.removeTime )
+                                        a.verbose, LogMsg )
 
     # mpMethod for pyEDM's own internal pools (EmbedDimension/CCM) - never fork
     edmMethod = ResolveStartMethod( a.mpMethod )
@@ -54,11 +53,12 @@ def Run( self ):
     # a candidate).  Order doesn't matter; use set for efficiency.
     dataColumns = list( set( numericDF.columns ) - set( a.removeColumns ) )
 
-    # Slope-matrix coverage: every candidate column must be a predicted
-    # (column) label in the matrix, since lookups are slopeMatrix.loc[
-    # target, candidate ].  Fail fast on a matrix that does not match data.
+    # Slope-matrix coverage: every candidate must be a source-row label since
+    # lookups are slopeMatrix.loc[candidate, target]. Validate() requires
+    # identical row/column labels, so checking columns here is equivalent.
     if self.slopeMatrix is not None :
-        missing = [ c for c in dataColumns if c not in self.slopeMatrix.columns ]
+        missing = [ c for c in dataColumns
+                    if c not in self.slopeMatrix.columns ]
         if missing :
             msg = f'Run() slope matrix missing candidate columns: {missing}'
             LogMsg( msg )
@@ -87,6 +87,7 @@ def Run( self ):
     # single threaded (CCM is always workers=1 in pyEDM 2.5.3).
     # Note embedded = True
     argsD = { 'target'          : a.target,
+              'candidateColumns': dataColumns,
               'lib'             : a.lib,
               'pred'            : a.pred,
               'E'               : 0,
@@ -100,12 +101,18 @@ def Run( self ):
     maxTasks = len( dataColumns )
 
     # One persistent pool for the whole run; teardown guaranteed in finally.
-    pool = CrossMapPool( numericDF, argsD,
-                         crossMapCores = a.crossMapCores,
-                         mpMethod  = a.mpMethod,
-                         sharedMem = getattr( a, 'sharedMem', 0.1 ),
-                         maxTasks  = maxTasks,
-                         logMsg    = LogMsg if a.verbose else None )
+    pool = ResolveCrossMap(
+               numericDF, argsD,
+               backend        = getattr( a, 'crossMapBackend', 'cpu' ),
+               torchDevice     = getattr( a, 'torchDevice', 'cuda' ),
+               batchCandidates = getattr( a, 'torchBatchCandidates', 16 ),
+               predChunk       = getattr( a, 'torchPredChunk', 128 ),
+               crossMapCores   = a.crossMapCores,
+               mpMethod        = a.mpMethod,
+               sharedMem       = getattr( a, 'sharedMem', 0.1 ),
+               maxTasks        = maxTasks,
+               logMsg          = LogMsg if a.verbose else None,
+               cpuFactory      = CrossMapPool )
     try :
         logPct = getattr( a, 'logPct', 0 )
 
@@ -129,7 +136,8 @@ def Run( self ):
                                        logPct = logPct, verbose = a.verbose )
 
             # Rank by decreasing rho
-            L_rhoD = sorted(rhoD_cmap.values(), key = lambda x:x[0], reverse = True)
+            L_rhoD = sorted( rhoD_cmap.values(), key = lambda x:x[0],
+                             reverse = True )
 
             # Discard elements below crossMapRhoMin
             rhoD_  = array( [ _[0] for _ in L_rhoD ] )
@@ -219,7 +227,8 @@ def Run( self ):
                             maxEDim, maxRhoEDim = self._edimCache[ newColumn ]
                         else :
                             if a.debug :
-                                LogMsg( f'   EmbedDimension -> {datetime.now()}' )
+                                LogMsg( '   EmbedDimension -> '
+                                        f'{datetime.now()}' )
                                 LogMsg( f'      {columns_i}' )
 
                             EDimDF = EmbedDimension(
@@ -241,7 +250,8 @@ def Run( self ):
                                          showPlot        = False )
 
                             if a.debug :
-                                LogMsg( f'   EmbedDimension <- {datetime.now()}' )
+                                LogMsg( '   EmbedDimension <- '
+                                        f'{datetime.now()}' )
 
                             if a.firstEMax :
                                 iMax = argrelextrema( EDimDF['rho'].to_numpy(),

@@ -1,20 +1,50 @@
 ## Manifold Dimensional Expansion (MDE)
 ---
-Manifold dimensional expansion is a causal discovery and dimensionality reduction technique designed to identify low dimensional maximally predictive _observables_ of a dynamical system with multivariate observations.
+Manifold dimensional expansion is a causal discovery and dimensionality
+reduction technique designed to identify low dimensional maximally predictive
+_observables_ of a dynamical system with multivariate observations.
 
-The algorithm is based on a greedy implementation of the [generalized](https://doi.org/10.1371%2Fjournal.pone.0018295) Takens embedding theorem. However, instead of using time delays for dimensionality expansion, _observables_ that improve the forecast skill of a target variable are added until no further improvement can be achieved. The default predictor is the [simplex](https://www.nature.com/articles/344734a0) function in [pyEDM](https://pypi.org/project/pyEDM/) providing a fully nonlinear predictor from [Empirical Dynamic Modeling (EDM)](https://en.wikipedia.org/wiki/Empirical_dynamic_modeling). 
+The algorithm is based on a greedy implementation of the
+[generalized](https://doi.org/10.1371%2Fjournal.pone.0018295) Takens embedding
+theorem. However, instead of using time delays for dimensionality expansion,
+_observables_ that improve the forecast skill of a target variable are added
+until no further improvement can be achieved. The default predictor is the
+[simplex](https://www.nature.com/articles/344734a0) function in
+[pyEDM](https://pypi.org/project/pyEDM/) providing a fully nonlinear predictor
+from [Empirical Dynamic Modeling
+(EDM)](https://en.wikipedia.org/wiki/Empirical_dynamic_modeling).
 
-Specifically, given a target observable, scan all other observables to find the best 1-D predictor of the target, ensuring the predictor has causal inference with the target. With this 1-D vector scan all remaining observables to find the 2-D embedding with best predictability and causal inference. This greedy algorithm is iterated up to the point that no further prediction skill improvement can be produced. 
+Specifically, given a target observable, scan all other observables to find the
+best 1-D predictor of the target, ensuring the predictor has causal inference
+with the target. With this 1-D vector scan all remaining observables to find the
+2-D embedding with best predictability and causal inference. This greedy
+algorithm is iterated up to the point that no further prediction skill
+improvement can be produced.
 
-Causal inference is performed by default with Convergent Cross Mapping ([CCM](https://science.sciencemag.org/content/338/6106/496)) ensuring the added observable is part of the dynamical system of the interrogated time series. The embedding dimension needed for CCM is automatically determined if parameter `E=0`, the default. Otherwise the specifed value of `E` is used. To account for unobserved variables time delay vectors of the top observables can be added.
+Causal inference is performed by default with Convergent Cross Mapping
+([CCM](https://science.sciencemag.org/content/338/6106/496)) ensuring the added
+observable is part of the dynamical system of the interrogated time series. The
+embedding dimension needed for CCM is automatically determined if parameter
+`E=0`, the default. Otherwise the specifed value of `E` is used. To account for
+unobserved variables time delay vectors of the top observables can be added.
 
-Output is a DataFrame with a ranked list of observation vectors and predictive skill satisfying MDE criteria for the target variable.
+Output is a DataFrame with a ranked list of observation vectors and predictive
+skill satisfying MDE criteria for the target variable.
 
 ---
 
 ## Installation
 
 `python -m pip install dimx`
+
+An experimental Torch candidate-sweep backend is available as an optional
+extra (`python -m pip install -e ".[torch]"` from a source checkout). The CPU
+pyEDM backend remains the default; enable the accelerator with
+`crossMapBackend = "torch"` (CUDA is the default Torch device). See the
+[Torch backend guide](docs/TORCH_BACKEND.md) for supported settings, fallback,
+consumer-file compatibility, numerical limits, and the CI benchmark artifact.
+The packaged kernel preserves the deployed driving/fMRI function bodies; this
+integration does not fold in unrelated numerical optimizations.
 
 ## Documentation
 

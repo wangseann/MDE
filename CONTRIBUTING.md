@@ -12,7 +12,7 @@ Use Python 3.11 or newer in an isolated environment:
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install --editable ".[test]"
+python -m pip install --editable ".[test,graph]"
 ```
 
 Run fast tests while developing, then run the scientific regressions before
@@ -23,7 +23,8 @@ python -m pytest -q \
   tests/test_Config.py tests/test_MDE_Unit.py \
   tests/test_ReverseMDE.py tests/test_CLI_Parser.py \
   tests/test_pyEDM_Compatibility.py \
-  tests/test_ExternalValidationAdapter.py
+  tests/test_ExternalValidationAdapter.py \
+  tests/test_GraphMDE.py tests/test_Evaluate_Unit.py
 
 python -m pytest -q tests/test_MDE.py tests/test_MDE_CCM_Matrix.py
 ```

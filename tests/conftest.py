@@ -44,9 +44,9 @@ def ValidData( filename ):
         df = read_csv( os.path.join(VALID_DIR, filename) )
     elif '.feather' in filename[-8:] :
         df = read_feather( os.path.join(VALID_DIR, filename) )
+    else :
+        raise ValueError( f'unsupported file: {filename}' )
     return df
-    
-    return read_csv( os.path.join( VALID_DIR, filename ) )
 
 # ---------------------------------------------------------------------------
 # data file helper
@@ -61,6 +61,8 @@ def LoadData( filename ):
         df = read_csv( os.path.join(DATA_DIR, filename) )
     elif '.feather' in filename[-8:] :
         df = read_feather( os.path.join(DATA_DIR, filename) )
+    else :
+        raise ValueError( f'unsupported file: {filename}' )
     return df
 
 # ---------------------------------------------------------------------------
@@ -73,7 +75,6 @@ def LoadData( filename ):
 MDEArgs = dict( dataFile        = None,  # file name for DataFrame
                 slopeMatrixFile = None,  # CCM slope matrix .csv / .feather
                 dataName        = None,  # dataName in npz archive
-                removeTime      = False, # remove dataFrame first column
                 noTime          = False, # first dataFrame column is data
                 columnNames     = [],    # partial match columnNames
                 initDataColumns = [],    # .npy .npz : see ReadData()
@@ -102,6 +103,10 @@ MDEArgs = dict( dataFile        = None,  # file name for DataFrame
                 sharedMem       = 0.1,   # shared-mem threshold (decimal MB)
                 logPct          = 0,     # cross-map progress band
                 kdWorkers       = 1,     # KDTree.query workers in Simplex
+                crossMapBackend = 'cpu', # cpu | auto | torch sweep backend
+                torchDevice     = 'cuda', # Torch device string
+                torchBatchCandidates = 16, # candidate columns per Torch batch
+                torchPredChunk  = 128,   # prediction rows per Torch chunk
                 outDir          = './',  # use pathlib for windog
                 outFile         = None,
                 outCSV          = None,
@@ -118,8 +123,7 @@ EvalArgs = dict( dataFile        = None,
                  columns_range   = [],
                  i_columns       = [],
                  columnMatch     = [],
-                 removeColumns   = [],
-                 removeTime      = False,
+                 noTime          = False,
                  initDataColumns = [],
                  predictVar      = None,
                  library         = [],
