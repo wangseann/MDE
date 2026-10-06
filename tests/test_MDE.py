@@ -10,8 +10,7 @@ def test_mde_Lorenz5D():
     '''Lorenz5D : D=4'''
     data   = sampleData["Lorenz5D"]
     kwargs = MDEArgs.copy()
-    kwargs.update( dict(removeTime      = True,
-                        removeColumns   = ['V5'],
+    kwargs.update( dict(removeColumns   = ['V5'],
                         D               = 4,
                         target          = 'V5',
                         tau             = -5,
@@ -92,7 +91,7 @@ def test_evaluate4():
                         columns_range = [1,81],
                         predictVar    = 'FWD',
                         library       = [1,300],
-                        prediction    = [301,600],
+                        prediction    = [302,600],
                         Tp            = 1,
                         components    = 5,
                         dmap_k        = 15) )
