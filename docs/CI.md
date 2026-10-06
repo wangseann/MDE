@@ -46,8 +46,9 @@ silently raising that floor.
 
 ## Scheduled workflow: `Extended validation`
 
-`.github/workflows/validation.yml` runs each Monday at 03:17 UTC and on manual
-dispatch. It pins `pao-unit/EDM_MDE_validation` by full commit:
+`.github/workflows/validation.yml` runs each Monday at 03:17 UTC, on manual
+dispatch, and on pushes to `integration/upstream-*` branches so upstream
+merges exercise the independent reference suite before review. It pins `pao-unit/EDM_MDE_validation` by full commit:
 
 - `external-pyedm`: all 31 independent pyEDM tests, with shared sample data
   restored between cases so an upstream state leak cannot alter later files;
