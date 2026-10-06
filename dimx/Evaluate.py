@@ -217,9 +217,8 @@ class Evaluate:
             msg = 'Validate(): specify both library and prediction'
             raise RuntimeError( msg )
 
-        # Default : 50% split. Prediction starts Tp rows later so that
-        # the last library target, row libStop + Tp, is not in the
-        # prediction set.
+        # Default : 50% split. Preserve upstream's conservative Tp-row gap
+        # even though Run() keeps library targets within the library window.
         if len( args.library ) == 0 :
             nRows           = self.dataFrame.shape[0]
             half            = nRows // 2

@@ -37,7 +37,7 @@ class GraphMDE:
         if not isinstance(nodeFrames, dict) or not nodeFrames:
             raise ValueError('nodeFrames must be a non-empty dict')
 
-        # N override: None means all rows; else non-neg int / numpy int
+        # N override: None uses the root row count; else non-neg int / numpy int
         if N is not None:
             if isinstance(N, bool) or \
                not isinstance(N, (int, np.integer)):
