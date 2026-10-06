@@ -55,6 +55,13 @@ merges exercise the independent reference suite before review. It pins `pao-unit
 - `external-mde`: both independent MDE tests, using the documented
   legacy-keyword adapter; both must pass against their pinned goldens.
 
+Both jobs pin pyEDM 2.5.6, the reference runtime used when this validation
+snapshot was integrated. pyEDM 2.5.7 changes neighbor tie resolution and
+exclusion masking; five external EmbedDimension cases fail their frozen
+exact-value assertions with that release. The reference outputs and
+assertions remain unchanged. Required package, standard, and bundled
+regression jobs continue to resolve the current supported pyEDM release.
+
 The external suite is deliberately separate from pull-request CI because it
 duplicates upstream pyEDM coverage and contains expensive numerical cases. A
 failure is still actionable: dependency updates and GPU backend changes must

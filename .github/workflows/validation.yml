@@ -25,6 +25,7 @@ env:
   PYTHONHASHSEED: "0"
   PYTHONUNBUFFERED: "1"
   VALIDATION_REF: bae270e568dd52830f57ab661380e700097aa58d
+  VALIDATION_PYEDM: "2.5.6"
 
 jobs:
   external-pyedm:
@@ -48,7 +49,9 @@ jobs:
       - name: Install dimx and validation dependencies
         run: |
           python -m pip install --upgrade pip
+          python -m pip install "pyEDM==$VALIDATION_PYEDM"
           python -m pip install --editable ".[test]"
+          python -c "from importlib.metadata import version; import os; print('pyEDM', version('pyEDM')); assert version('pyEDM') == os.environ['VALIDATION_PYEDM']"
       - name: Run every external pyEDM test
         run: |
           mkdir -p "$MPLCONFIGDIR" test-results
@@ -89,7 +92,9 @@ jobs:
       - name: Install dimx and validation dependencies
         run: |
           python -m pip install --upgrade pip
+          python -m pip install "pyEDM==$VALIDATION_PYEDM"
           python -m pip install --editable ".[test]"
+          python -c "from importlib.metadata import version; import os; print('pyEDM', version('pyEDM')); assert version('pyEDM') == os.environ['VALIDATION_PYEDM']"
       - name: Run both external MDE tests with the documented adapter
         run: |
           mkdir -p "$MPLCONFIGDIR" test-results
